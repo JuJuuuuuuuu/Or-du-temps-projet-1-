@@ -1,0 +1,32 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function Commentaire(props) {
+  const [commentaires, setCommentaires] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get(`/api/commentaires/${props.idProduit}`)
+      .then((response) => {
+        setCommentaires(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [props.idProduit]);
+
+  return (
+    <div>
+      <h2>Commentaires</h2>
+      {commentaires.map((commentaire) => (
+        <div key={commentaire.id}>
+          <p>{commentaire.question}</p>
+          <p>{commentaire.reponse}</p>
+          <p>{commentaire.date}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default Commentaire;

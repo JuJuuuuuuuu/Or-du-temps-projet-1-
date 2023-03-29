@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  ##############################
+  # Backend Container
+  ##############################
+  postgres:
+    image: postgres:15.2
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      PGUSER: or_du_temps
+      POSTGRES_PASSWORD: or_du_temps
+      POSTGRES_DB: or_du_temps
+    volumes:
+      - or_du_temps:/var/lib/postgresql/data
+      - ./server/config/or_du_temps_backup.sql:/docker-entrypoint-initdb.d/init.sql
+
+  server:
+    env_file: "./server/.env"
+    container_name: server
+    restart: always
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+    image: "or_du_temps/server:latest"
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
+
+  ##############################
+  # UI Container
+  ##############################
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    image: "or_du_temps/frontend:latest"
+    restart: always
+    container_name: frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - server
+
+volumes:
+  or_du_temps:
